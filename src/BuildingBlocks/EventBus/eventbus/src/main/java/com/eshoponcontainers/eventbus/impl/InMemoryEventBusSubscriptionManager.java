@@ -5,11 +5,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.stereotype.Service;
+
 import com.eshoponcontainers.eventbus.SubscriptionInfo;
 import com.eshoponcontainers.eventbus.abstractions.EventBusSubscriptionManager;
 import com.eshoponcontainers.eventbus.abstractions.IntegrationEventHandler;
 import com.eshoponcontainers.eventbus.events.IntegrationEvent;
 
+@Service
 public class InMemoryEventBusSubscriptionManager implements EventBusSubscriptionManager {
     
     HashMap<String, ArrayList<SubscriptionInfo>> handlers = new HashMap<>();

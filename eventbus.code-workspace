@@ -1,0 +1,18 @@
+{
+	"folders": [
+		{
+			"path": "src/BuildingBlocks/EventBus/eventbus"
+		},
+		{
+			"path": "src/BuildingBlocks/EventBus/eventbus-rabbitmq"
+		},
+		{
+			"name": "catalogapi",
+			"path": "src/Services/catalogapi"
+		}
+	],
+	"settings": {
+		"java.configuration.updateBuildConfiguration": "automatic",
+		"java.compile.nullAnalysis.mode": "automatic"
+	}
+}

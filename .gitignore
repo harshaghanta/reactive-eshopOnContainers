@@ -1,1 +1,5 @@
-src/BuildingBlocks/EventBus/eventbus/target/
+*/target/*
+*/target/**
+**/mvnw
+**/mvnw.cmd
+**/.mvn/
