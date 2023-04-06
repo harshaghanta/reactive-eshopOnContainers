@@ -1,8 +1,19 @@
 version: '3.4'
 
 services:
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
+  # rabbitmq:
+  #   image: rabbitmq:3-management-alpine
+  #   ports:
+  #     - 5672:5672
+  #     - 15672:15672
+  catalog-db:
+    container_name: catalogdbcontainer
+    image: catalogdbimage
+    build:
+      context: .
+      dockerfile: Setup/CatalogDB/Dockerfile
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=P@ssword1
     ports:
-      - 5672:5672
-      - 15672:15672
+      - 9133:1433
