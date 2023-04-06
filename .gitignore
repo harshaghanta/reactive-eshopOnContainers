@@ -1,5 +1,4 @@
-*/target/*
-*/target/**
 **/mvnw
 **/mvnw.cmd
 **/.mvn/
+target/
