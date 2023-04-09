@@ -1,11 +1,19 @@
 version: '3.4'
 
 services:
-  # rabbitmq:
-  #   image: rabbitmq:3-management-alpine
-  #   ports:
-  #     - 5672:5672
-  #     - 15672:15672
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq-eventbus
+    ports:
+      - 5672:5672
+      - 15672:15672
+    networks:
+      - simpbridgenetwork
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 5      
   catalog-db:
     container_name: catalogdbcontainer
     image: catalogdbimage
@@ -17,3 +25,24 @@ services:
       - SA_PASSWORD=P@ssword1
     ports:
       - 9133:1433
+    networks:
+      - simpbridgenetwork  
+  catalog-api:
+    container_name: catalogapicontainer
+    image: catalogapiimage
+    build: 
+      context: Services/catalogapi/
+      # dockerfile: Dockerfile
+    ports:
+      - 8095:8085
+    networks:
+      - simpbridgenetwork
+    depends_on:
+      catalog-db:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+
+
+networks:
+  simpbridgenetwork:

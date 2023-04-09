@@ -5,12 +5,14 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
 
 import com.eshoponcontainers.EventBus;
 import com.eshoponcontainers.catalogapi.eventhandlers.PriceChangedEventHandler;
 import com.eshoponcontainers.catalogapi.events.PriceChangedEvent;
 
 @SpringBootApplication(scanBasePackages = {"com.eshoponcontainers"})
+@EnableR2dbcRepositories
 public class CatalogapiApplication {
 
 	@Autowired
