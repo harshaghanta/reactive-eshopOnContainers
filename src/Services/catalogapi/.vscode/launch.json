@@ -1,0 +1,16 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-CatalogapiApplication<catalogapi>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.eshoponcontainers.catalogapi.CatalogapiApplication",
+            "projectName": "catalogapi",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dspring.profiles.active=dev"
+
+        }
+    ]
+}

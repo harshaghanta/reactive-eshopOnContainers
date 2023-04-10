@@ -34,7 +34,7 @@ services:
       context: Services/catalogapi/
       # dockerfile: Dockerfile
     ports:
-      - 8095:8085
+      - 8095:8080
     networks:
       - simpbridgenetwork
     depends_on:

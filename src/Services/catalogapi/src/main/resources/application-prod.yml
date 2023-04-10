@@ -1,0 +1,10 @@
+# server:
+#   port: 8080
+rabbitmqconfig:
+  host: rabbitmq
+  port: 15672
+spring:
+  r2dbc:
+    url: r2dbc:mssql://catalog-db:1433/CatalogDB
+    username: sa
+    password: P@ssword1
