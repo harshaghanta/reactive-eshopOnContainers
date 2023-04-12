@@ -8,3 +8,12 @@ spring:
     url: r2dbc:mssql://localhost:9133/CatalogDB
     username: sa
     password: P@ssword1
+
+logging:
+  level:
+    org:
+      springframework:
+        data:
+          r2dbc: DEBUG
+    io.r2dbc.r2dbc-mssql.QUERY: DEBUG
+    io.r2dbc.r2dbc-mssql.PARAM: DEBUG

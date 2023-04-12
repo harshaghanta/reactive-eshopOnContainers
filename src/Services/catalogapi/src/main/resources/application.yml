@@ -1,0 +1,8 @@
+logging:
+  level:
+    org:
+      springframework:
+        data:
+          r2dbc: DEBUG
+    io.r2dbc.r2dbc-mssql: DEBUG
+    io.r2dbc.r2dbc-mssql.PARAM: DEBUG
