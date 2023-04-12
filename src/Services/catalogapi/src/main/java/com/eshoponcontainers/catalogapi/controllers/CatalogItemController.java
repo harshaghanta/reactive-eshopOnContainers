@@ -15,6 +15,7 @@ import com.eshoponcontainers.catalogapi.entities.CatalogItem;
 import com.eshoponcontainers.catalogapi.repositories.CatalogItemRepository;
 
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -24,16 +25,17 @@ public class CatalogItemController {
     
     private final CatalogItemRepository catalogItemRepository;
 
-    // @GetMapping("/items")
-    // public Mono<ResponseEntity<CatalogItem>> getCatalogItems(
-    //     @RequestParam( name = "pageIndex", required = false, defaultValue = "0") Integer pageIndex,
-    //     @RequestParam(required = false, defaultValue = "10") Integer pageSize,
-    //     @RequestParam (required = false, name = "ids" ) String ids) 
-    // {
-    //     PageRequest pageRequest = PageRequest.of(pageIndex, pageSize, Sort.by("id").ascending());
-    //     PageRequest withSort = pageRequest.withSort(Sort.by("name").ascending());
-    //     catalogItemRepository.findAll
-    // }
+    @GetMapping("/items")
+    public Flux<CatalogItem> getCatalogItems(
+        @RequestParam( name = "pageIndex", required = false, defaultValue = "0") Integer pageIndex,
+        @RequestParam(required = false, defaultValue = "10") Integer pageSize,
+        @RequestParam (required = false, name = "ids" ) String ids) 
+    {
+        PageRequest pageRequest = PageRequest.of(pageIndex, pageSize);
+        // PageRequest withSort = pageRequest.withSort(Sort.by("name").ascending());
+        Flux<CatalogItem> catalogItemsFlux = catalogItemRepository.findAllByOrderByIdAsc(pageRequest);
+        return catalogItemsFlux;
+    }
 
     @GetMapping("/items/{id}")
     public Mono<CatalogItem> getItemById(@PathVariable Integer id) {

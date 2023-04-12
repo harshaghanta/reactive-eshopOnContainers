@@ -37,8 +37,10 @@ public class CatalogItem {
     @Column(value = "OnReorder")
     private boolean onReorder;
 
+    @Column(value= "CatalogBrandId")
     private Integer catalogBrandId;
-
+    
+    @Column(value= "CatalogTypeId")
     private Integer catalogTypeId;
 
 
