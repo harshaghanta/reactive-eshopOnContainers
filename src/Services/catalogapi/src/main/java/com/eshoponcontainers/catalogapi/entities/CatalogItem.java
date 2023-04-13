@@ -36,11 +36,11 @@ public class CatalogItem {
 
     @Column(value = "OnReorder")
     private boolean onReorder;
-
-    @Column(value= "CatalogBrandId")
-    private Integer catalogBrandId;
     
-    @Column(value= "CatalogTypeId")
+    @Column(value = "catalogBrandId")
+    private Integer catalogBrandId;
+
+    @Column(value="catalogTypeId")
     private Integer catalogTypeId;
 
 
