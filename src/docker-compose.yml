@@ -30,9 +30,9 @@ services:
   catalog-api:
     container_name: catalogapicontainer
     image: catalogapiimage
-    build: 
-      context: Services/catalogapi/
-      # dockerfile: Dockerfile
+    build:
+      context: .
+      dockerfile: Services/catalogapi/Dockerfile
     ports:
       - 8095:8080
     networks:
