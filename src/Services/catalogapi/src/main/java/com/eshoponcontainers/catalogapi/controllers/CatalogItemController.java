@@ -24,13 +24,15 @@ import com.eshoponcontainers.catalogapi.repositories.CatalogItemRepository;
 import com.eshoponcontainers.catalogapi.repositories.CatalogTypeRepository;
 import com.eshoponcontainers.catalogapi.services.CatalogIntegrationService;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api/v1/catalog")
-@RequiredArgsConstructor
+@AllArgsConstructor
+@Slf4j
 public class CatalogItemController {
 
 	private final CatalogItemRepository catalogItemRepository;
@@ -51,8 +53,7 @@ public class CatalogItemController {
 
 	@GetMapping("/items/{id}")
 	public Mono<ResponseEntity<CatalogItem>> getItemById(@PathVariable Integer id) {
-		return catalogItemRepository.findById(id).map(catalog -> ResponseEntity.ok().body(catalog))
-				.switchIfEmpty(Mono
+		return catalogItemRepository.findById(id).map(catalog -> ResponseEntity.ok().body(catalog)).switchIfEmpty(Mono
 				.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Catalog item with id:" + id + " not found")));
 
 	}
@@ -80,19 +81,19 @@ public class CatalogItemController {
 					boolean raisePriceChangedEvent = oldPrice != newPrice;
 					if (raisePriceChangedEvent) {
 						// Need to implement Price Changed Event & CatalogIntegrationService
+						System.out.println("In Update Product " + requestedItem);
 						ProductPriceChangedIntegrationEvent productPriceChangedIntegrationEvent = new ProductPriceChangedIntegrationEvent(
 								requestedItem.getId(), oldPrice, newPrice);
-						catalogIntegrationService.saveEventAndCatalogChanges(productPriceChangedIntegrationEvent,
-								requestedItem);
-						catalogIntegrationService.publishThroughEventBus(productPriceChangedIntegrationEvent);
+						catalogIntegrationService
+								.saveEventAndCatalogChanges(productPriceChangedIntegrationEvent, requestedItem)
+								.then(catalogIntegrationService
+										.publishThroughEventBus(productPriceChangedIntegrationEvent));
 					} else {
 						catalogItemRepository.save(requestedItem);
 					}
-
 					URI location = URI.create("/items/" + requestedItem.getId());
 					return ResponseEntity.created(location).build();
 				});
-
 	}
 
 }

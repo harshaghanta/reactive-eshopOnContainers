@@ -2,8 +2,6 @@ package com.eshoponcontainers.catalogapi.services;
 
 import java.util.UUID;
 
-import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,34 +11,30 @@ import com.eshoponcontainers.catalogapi.repositories.CatalogItemRepository;
 import com.eshoponcontainers.eventbus.events.IntegrationEvent;
 import com.eshoponcontainers.services.IntegrationEventLogService;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
+@AllArgsConstructor
 public class CatalogIntegrationService {
 
-    @Autowired
-    private CatalogItemRepository catalogItemRepository;
-
-    @Autowired
-    private IntegrationEventLogService eventLogService;
-
-    @Autowired
-    private EventBus eventBus;
+    private final CatalogItemRepository catalogItemRepository;
+    private final IntegrationEventLogService eventLogService;
+    private final EventBus eventBus;
   
 
-	@Transactional
 	public Mono<Void> saveEventAndCatalogChanges(IntegrationEvent event, CatalogItem requestedItem) {
 		catalogItemRepository.save(requestedItem);
-		log.debug("In Save Event And Catalog Changes", requestedItem);
-		// TODO : HIGH : NEED TO GET TRANSSACTION ID
+		System.out.println("In Save Event And Catalog Changes " +requestedItem);
+		// TODO : HIGH : NEED TO GET TRANSSACTION ID AND Check @Transactional
 		UUID transactionId = UUID.randomUUID();
 		return eventLogService.saveEvent(event, transactionId);
 	}
 
 	public Mono<Void> publishThroughEventBus(IntegrationEvent event) {
-		log.debug("publishThroughEventBus", event);
+		System.out.println("publishThroughEventBus " +event);
 		eventLogService.markEventAsInProgress(event.getId());
 		eventBus.publish(event);
 		eventLogService.markEventAsPublished(event.getId());

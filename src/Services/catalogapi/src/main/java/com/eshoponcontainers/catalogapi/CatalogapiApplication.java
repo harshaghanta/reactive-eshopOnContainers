@@ -12,7 +12,7 @@ import com.eshoponcontainers.catalogapi.eventhandlers.PriceChangedEventHandler;
 import com.eshoponcontainers.catalogapi.events.PriceChangedEvent;
 
 @SpringBootApplication(scanBasePackages = {"com.eshoponcontainers"})
-@EnableR2dbcRepositories
+@EnableR2dbcRepositories(basePackages="com.eshoponcontainers")
 public class CatalogapiApplication {
 
 	@Autowired

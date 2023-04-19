@@ -1,7 +1,6 @@
 package com.eshoponcontainers.services.impl;
 
 import java.util.Comparator;
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -12,29 +11,25 @@ import com.eshoponcontainers.eventbus.events.IntegrationEvent;
 import com.eshoponcontainers.repositories.IntegrationEventLogRepository;
 import com.eshoponcontainers.services.IntegrationEventLogService;
 
+import lombok.AllArgsConstructor;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
+@AllArgsConstructor
 public class DefaultIntegrationEventLogService implements IntegrationEventLogService {
 
-	IntegrationEventLogRepository eventLogRepository;
-
-	public DefaultIntegrationEventLogService(IntegrationEventLogRepository eventLogRepository) {
-		this.eventLogRepository = eventLogRepository;
-	}
+	private final IntegrationEventLogRepository eventLogRepository;
 
 	@Override
-	public List<IntegrationEventLogEntry> retrieveEventLogsPendingToPublish(UUID transactionId) {
-		List<IntegrationEventLogEntry> pendingEvents = eventLogRepository
-				.findByTransactionIdAndState(transactionId.toString(), EventStateEnum.NOT_PUBLISHED);
-
-		if (pendingEvents != null && !pendingEvents.isEmpty()) {
-			pendingEvents.sort(Comparator.comparing(IntegrationEventLogEntry::getCreationTime));
-			pendingEvents.forEach(x -> x.deserializeEventContent());
-			return pendingEvents;
-		}
-
-		return null;
+	public Flux<IntegrationEventLogEntry> retrieveEventLogsPendingToPublish(UUID transactionId) {
+		return eventLogRepository
+				.findByTransactionIdAndState(transactionId.toString(), EventStateEnum.NOT_PUBLISHED)
+				.sort(Comparator.comparing(IntegrationEventLogEntry::getCreationTime))
+				.map(x ->  {
+					x.deserializeEventContent();
+					return x;
+				});
 	}
 
 	@Override
