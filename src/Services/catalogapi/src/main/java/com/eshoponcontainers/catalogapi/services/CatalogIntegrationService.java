@@ -3,7 +3,6 @@ package com.eshoponcontainers.catalogapi.services;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.eshoponcontainers.EventBus;
 import com.eshoponcontainers.catalogapi.entities.CatalogItem;
