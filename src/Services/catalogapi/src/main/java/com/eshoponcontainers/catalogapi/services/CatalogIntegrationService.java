@@ -35,9 +35,8 @@ public class CatalogIntegrationService {
 
 	public Mono<Void> publishThroughEventBus(IntegrationEvent event) {
 		System.out.println("publishThroughEventBus " +event);
-		eventLogService.markEventAsInProgress(event.getId());
-		eventBus.publish(event);
-		eventLogService.markEventAsPublished(event.getId());
+		eventLogService.markEventAsInProgress(event.getId()).then(eventBus.publish(event))
+				.then(eventLogService.markEventAsPublished(event.getId()));
 		return Mono.empty();
 	}
     
