@@ -30,85 +30,79 @@ import reactor.rabbitmq.Sender;
 @Component
 public class EventBusRabbitMQ implements EventBus {
 
-    private static final String EXCHANGE_TYPE_DIRECT = "direct";
-    private static final String BROKER_NAME = "eshop_event_bus_exchange";
-    private static final String QUEUE_NAME = "Catalog";
+	private static final String EXCHANGE_TYPE_DIRECT = "direct";
+	private static final String BROKER_NAME = "eshop_event_bus_exchange";
+	private static final String QUEUE_NAME = "Catalog";
 
-    private final Sender sender;
-    private final InMemoryEventBusSubscriptionManager subscriptionManager;
-    private final Receiver receiver;
+	private final Sender sender;
+	private final InMemoryEventBusSubscriptionManager subscriptionManager;
+	private final Receiver receiver;
 
-    @Override
-    public Mono<Void> publish(IntegrationEvent event) {
+	@Override
+	public Mono<Void> publish(IntegrationEvent event) {
+		ObjectMapper mapper = new ObjectMapper();
+		String eventName = event.getClass().getSimpleName();
+		System.out.println("Event Name : " + eventName);
+		BasicProperties basicProperties = new BasicProperties().builder().deliveryMode(2).build();
+		try {
+			byte[] body = mapper.writeValueAsBytes(event);
+			OutboundMessage message = new OutboundMessage(BROKER_NAME, eventName, basicProperties, body);
+			return sender.declare(ExchangeSpecification.exchange(BROKER_NAME).type(EXCHANGE_TYPE_DIRECT))
+					.then(sender.send(Mono.just(message)));
+		} catch (JsonProcessingException e) {
+			return Mono.error(e);
+		}
+	}
 
-        ObjectMapper mapper = new ObjectMapper();
-        String eventName = event.getClass().getSimpleName();
-        BasicProperties basicProperties = new BasicProperties().builder().deliveryMode(2).build();
+	@Override
+	public <T extends IntegrationEvent, TH extends IntegrationEventHandler<T>> Mono<Void> subscribe(Class<T> eventType,
+			Class<TH> eventHandler) {
+		subscriptionManager.addSubscription(eventType, eventHandler);
+		log.info("Entered subscribe method");
+		Mono<Void> mono = Mono.fromRunnable(() -> {
+			receiver.consumeAutoAck(QUEUE_NAME).subscribe(message -> {
+				String routingKey = message.getEnvelope().getRoutingKey();
+				// Class eventType = subscriptionManager.getEventTypeByName(routingKey);
+				byte[] messageBody = message.getBody();
+				try {
+					Object event = new ObjectMapper().readValue(messageBody, eventType);
+					log.info(event.toString());
+					List<SubscriptionInfo> subscriptions = subscriptionManager.getHandlersForEvent(eventType);
+					if (subscriptions != null && !subscriptions.isEmpty()) {
+						for (SubscriptionInfo subscription : subscriptions) {
+							Class handler = subscription.getHandler();
+							Method methodInfo = null;
+							try {
+								methodInfo = handler.getDeclaredMethod("handle", IntegrationEvent.class);
+							} catch (NoSuchMethodException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (SecurityException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
 
-        try {
+							if (methodInfo != null)
+								try {
+									methodInfo.invoke(handler.newInstance(), event);
+								} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
+										| InstantiationException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+						}
 
-            byte[] body = mapper.writeValueAsBytes(event);
-            OutboundMessage message = new OutboundMessage(BROKER_NAME, eventName, basicProperties, body);
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			});
+		});
+		return sender.declare(ExchangeSpecification.exchange(BROKER_NAME))
+				.then(sender.declareQueue(QueueSpecification.queue(QUEUE_NAME)))
+				.then(sender.bind(BindingSpecification.binding(BROKER_NAME, eventType.getSimpleName(), QUEUE_NAME)))
+				.then(mono);
 
-            return sender.declare(ExchangeSpecification.exchange(BROKER_NAME).type(EXCHANGE_TYPE_DIRECT))
-                    .then(sender.send(Mono.just(message)));
-
-        } catch (JsonProcessingException e) {
-            return Mono.error(e);
-        }
-    }
-
-    @Override
-    public <T extends IntegrationEvent, TH extends IntegrationEventHandler<T>> Mono<Void> subscribe(Class<T> eventType,
-            Class<TH> eventHandler) {
-
-        subscriptionManager.addSubscription(eventType, eventHandler);
-        log.info("Entered subscribe method");
-
-        Mono<Void> mono = Mono.fromRunnable(() -> {
-            receiver.consumeAutoAck(QUEUE_NAME).subscribe(message -> {
-
-                String routingKey = message.getEnvelope().getRoutingKey();
-                // Class eventType = subscriptionManager.getEventTypeByName(routingKey);
-                byte[] messageBody = message.getBody();
-                try {
-                    Object event = new ObjectMapper().readValue(messageBody, eventType);
-                    log.info(event.toString());
-                    List<SubscriptionInfo> subscriptions = subscriptionManager.getHandlersForEvent(eventType);
-                    if (subscriptions != null && !subscriptions.isEmpty()) {
-                        for (SubscriptionInfo subscription : subscriptions) {
-                            Class handler = subscription.getHandler();
-                            Method methodInfo = null;
-                            try {
-                                methodInfo = handler.getDeclaredMethod("handle", IntegrationEvent.class);
-                            } catch (NoSuchMethodException e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
-                            } catch (SecurityException e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
-                            }
-
-                            if(methodInfo != null)
-                                try {
-                                    methodInfo.invoke(handler.newInstance(), event);
-                                } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | InstantiationException e) {
-                                    // TODO Auto-generated catch block
-                                    e.printStackTrace();
-                                }
-                        }
-
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
-        });
-        return sender.declare(ExchangeSpecification.exchange(BROKER_NAME))
-                .then(sender.declareQueue(QueueSpecification.queue(QUEUE_NAME)))
-                .then(sender.bind(BindingSpecification.binding(BROKER_NAME, eventType.getSimpleName(), QUEUE_NAME)))
-                .then(mono);
-
-    }
+	}
 
 }
