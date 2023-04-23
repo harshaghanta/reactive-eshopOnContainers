@@ -1,10 +1,13 @@
 package com.eshoponcontainers.entities;
 
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.annotation.Transient;
+import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -19,9 +22,9 @@ import lombok.Data;
 
 @Table(name = "IntegrationEventLog")
 @Data
-public class IntegrationEventLogEntry {
+public class IntegrationEventLogEntry implements Persistable<UUID> {
     
-    @Id
+	@Id
     @Column(value = "EventId")
     private UUID eventId;
 
@@ -29,13 +32,13 @@ public class IntegrationEventLogEntry {
     private String content;
 
     @Column(value = "CreationTime")
-    private Date creationTime;
+    private LocalDateTime creationTime;
 
     @Column(value = "EventTypeName")
     private String eventTypeName;
 
     @Column(value = "State")
-    private EventStateEnum state;
+    private Integer state;
 
     @Column(value =  "TimesSent")
     private Integer timesSent;
@@ -46,14 +49,14 @@ public class IntegrationEventLogEntry {
     @Transient
     private IntegrationEvent event;
 
-    //Added this as a constructor to avoid the error during save of entity. Seems hibernate needs a default constructor, but does't care if its public:
-    private IntegrationEventLogEntry() {
-
-    }
+//    //Added this as a constructor to avoid the error during save of entity. Seems hibernate needs a default constructor, but does't care if its public:
+//    private IntegrationEventLogEntry() {
+//
+//    }
 
     public IntegrationEventLogEntry(IntegrationEvent event, UUID transId) {
         eventId = event.getId();
-        creationTime = event.getCreationDate();
+        creationTime = LocalDateTime.ofInstant(event.getCreationDate().toInstant(), ZoneId.systemDefault());
         eventTypeName = event.getClass().getName();
       
         try {
@@ -61,16 +64,20 @@ public class IntegrationEventLogEntry {
         } catch (JsonProcessingException e) {            
             e.printStackTrace();
         }
-        state = EventStateEnum.NOT_PUBLISHED;
+        state = EventStateEnum.NOT_PUBLISHED.getValue();
         timesSent = 0;
         transactionId = transId.toString();
+        newIntegrationEventLogEntry = true;
+        this.event = null;
+        
     }
+    
 
-    public Date getCreationTime() {
+    public LocalDateTime getCreationTime() {
         return creationTime;
     }
 
-    public EventStateEnum getState() {
+    public Integer getState() {
         return state;
     }
 
@@ -82,12 +89,40 @@ public class IntegrationEventLogEntry {
         this.timesSent = timesSent;
     }
 
-    public void setState(EventStateEnum state) {
+    public void setState(Integer state) {
         this.state = state;
     }
 
     public void deserializeEventContent() {
         this.event = new ObjectMapper().convertValue(this.content, IntegrationEvent.class);
     }
+    
+    @Transient
+    private boolean newIntegrationEventLogEntry;
+
+    @Override
+    @Transient
+    public boolean isNew() {
+        return newIntegrationEventLogEntry || eventId == null;
+    }
+
+	@Override
+	public UUID getId() {
+		return eventId;
+	}
+
+	@PersistenceConstructor
+	public IntegrationEventLogEntry(UUID eventId, String content, LocalDateTime creationTime, String eventTypeName,
+			Integer state, Integer timesSent, String transactionId) {
+		this.eventId = eventId;
+		this.content = content;
+		this.creationTime = creationTime;
+		this.eventTypeName = eventTypeName;
+		this.state = state;
+		this.timesSent = timesSent;
+		this.transactionId = transactionId;
+		this.event = null;
+		this.newIntegrationEventLogEntry = false;
+	}
     
 }

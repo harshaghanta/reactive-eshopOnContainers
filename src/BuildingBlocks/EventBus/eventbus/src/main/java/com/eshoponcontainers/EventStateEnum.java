@@ -10,4 +10,7 @@ public enum EventStateEnum {
     private EventStateEnum(int value) {
         this.value = value;
     }
+    public int getValue() {
+        return value;
+    }
 }

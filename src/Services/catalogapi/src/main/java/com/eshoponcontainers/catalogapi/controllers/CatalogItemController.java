@@ -80,8 +80,7 @@ public class CatalogItemController {
 					Double newPrice = requestedItem.getPrice();
 					boolean raisePriceChangedEvent = oldPrice != newPrice;
 					if (raisePriceChangedEvent) {
-						// Need to implement Price Changed Event & CatalogIntegrationService
-						System.out.println("In Update Product " + requestedItem);
+						System.out.println("In UpdateProduct raisePriceChangedEvent");
 						ProductPriceChangedIntegrationEvent productPriceChangedIntegrationEvent = new ProductPriceChangedIntegrationEvent(
 								requestedItem.getId(), oldPrice, newPrice);
 						catalogIntegrationService

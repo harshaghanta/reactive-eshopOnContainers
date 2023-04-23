@@ -19,24 +19,20 @@ import reactor.core.publisher.Mono;
 @AllArgsConstructor
 public class CatalogIntegrationService {
 
-    private final CatalogItemRepository catalogItemRepository;
-    private final IntegrationEventLogService eventLogService;
-    private final EventBus eventBus;
-  
+	private final CatalogItemRepository catalogItemRepository;
+	private final IntegrationEventLogService eventLogService;
+	private final EventBus eventBus;
 
 	public Mono<Void> saveEventAndCatalogChanges(IntegrationEvent event, CatalogItem requestedItem) {
-		catalogItemRepository.save(requestedItem);
-		System.out.println("In Save Event And Catalog Changes " +requestedItem);
-		// TODO : HIGH : NEED TO GET TRANSSACTION ID AND Check @Transactional
 		UUID transactionId = UUID.randomUUID();
-		return eventLogService.saveEvent(event, transactionId);
+		System.out.println("In SaveEventAndCatalogChanges");
+		return Mono.just(catalogItemRepository.save(requestedItem).then(eventLogService.saveEvent(event, transactionId)).subscribe()).then();
 	}
 
 	public Mono<Void> publishThroughEventBus(IntegrationEvent event) {
-		System.out.println("publishThroughEventBus " +event);
-		eventLogService.markEventAsInProgress(event.getId()).then(eventBus.publish(event))
+		System.out.println("publishThroughEventBus");
+		return eventLogService.markEventAsInProgress(event.getId()).thenReturn(eventBus.publish(event).subscribe())
 				.then(eventLogService.markEventAsPublished(event.getId()));
-		return Mono.empty();
 	}
-    
+
 }

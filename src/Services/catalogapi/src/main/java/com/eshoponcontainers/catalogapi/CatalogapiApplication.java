@@ -9,7 +9,9 @@ import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
 
 import com.eshoponcontainers.EventBus;
 import com.eshoponcontainers.catalogapi.eventhandlers.PriceChangedEventHandler;
+import com.eshoponcontainers.catalogapi.eventhandlers.ProductPriceChangedEventHandler;
 import com.eshoponcontainers.catalogapi.events.PriceChangedEvent;
+import com.eshoponcontainers.catalogapi.events.ProductPriceChangedIntegrationEvent;
 
 @SpringBootApplication(scanBasePackages = {"com.eshoponcontainers"})
 @EnableR2dbcRepositories(basePackages="com.eshoponcontainers")
@@ -25,7 +27,7 @@ public class CatalogapiApplication {
 	@PostConstruct
     public void configureEventBus() {
         eventBus.subscribe(PriceChangedEvent.class, PriceChangedEventHandler.class).subscribe();    
-        
+        eventBus.subscribe(ProductPriceChangedIntegrationEvent.class, ProductPriceChangedEventHandler.class).subscribe();  
     }
 
 }

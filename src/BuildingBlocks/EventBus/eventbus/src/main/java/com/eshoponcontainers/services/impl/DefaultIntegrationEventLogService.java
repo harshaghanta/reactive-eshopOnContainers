@@ -35,35 +35,35 @@ public class DefaultIntegrationEventLogService implements IntegrationEventLogSer
 	@Override
 	public Mono<Void> saveEvent(IntegrationEvent event, UUID transactionId) {
 		IntegrationEventLogEntry logEntry = new IntegrationEventLogEntry(event, transactionId);
-		eventLogRepository.save(logEntry);
-		return Mono.empty();
+		System.out.println("logEntry : " + logEntry);
+		return Mono.just(eventLogRepository.save(logEntry).subscribe()).then();
 	}
 
 	@Override
 	public Mono<Void> markEventAsPublished(UUID eventId) {
-
-		return updateEventStatus(eventId, EventStateEnum.PUBLISHED);
+		return updateEventStatus(eventId, EventStateEnum.PUBLISHED.getValue());
 	}
 
 	@Override
 	public Mono<Void> markEventAsInProgress(UUID eventId) {
-		return updateEventStatus(eventId, EventStateEnum.IN_PROGRESS);
+ 		return updateEventStatus(eventId, EventStateEnum.IN_PROGRESS.getValue());
 	}
 
 	@Override
 	public Mono<Void> markEventAsFailed(UUID eventId) {
-		return updateEventStatus(eventId, EventStateEnum.PUBLISH_FAILED);
-
+		return updateEventStatus(eventId, EventStateEnum.PUBLISH_FAILED.getValue());
 	}
 
-	private Mono<Void> updateEventStatus(UUID eventId, EventStateEnum status) {
-		eventLogRepository.findById(eventId).map(event -> {
+	private Mono<Void> updateEventStatus(UUID eventId, Integer status) {
+		return Mono.just(eventLogRepository.findById(eventId)
+		.map(event -> {
 			event.setState(status);
-			if (event.getState() == EventStateEnum.IN_PROGRESS) {
+			System.out.println("eventId : " + eventId + " Status : " + status);
+			if (event.getState() == EventStateEnum.IN_PROGRESS.getValue()) {
 				event.setTimesSent(event.getTimesSent() + 1);
 			}
-			return eventLogRepository.save(event);		
-		});
-		return Mono.empty();
+			event.setNewIntegrationEventLogEntry(false);
+			return eventLogRepository.save(event).subscribe();		
+		}).subscribe()).then();
 	}
 }
