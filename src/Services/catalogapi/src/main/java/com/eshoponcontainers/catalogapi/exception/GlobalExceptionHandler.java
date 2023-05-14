@@ -11,6 +11,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.CodecConfigurer;
+import org.springframework.http.codec.json.Jackson2JsonDecoder;
+import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.RequestPredicates;
@@ -26,8 +28,12 @@ import reactor.core.publisher.Mono;
 public class GlobalExceptionHandler extends AbstractErrorWebExceptionHandler {
 
     public GlobalExceptionHandler(ErrorAttributes errorAttributes, WebProperties webProperties,
-            ApplicationContext applicationContext, CodecConfigurer codecConfigurer) {
+            ApplicationContext applicationContext, CodecConfigurer codecConfigurer
+            , Jackson2JsonEncoder encoder, Jackson2JsonDecoder decoder
+            ) {
         super(errorAttributes, webProperties.getResources(), applicationContext);
+        codecConfigurer.defaultCodecs().jackson2JsonDecoder(decoder);
+        codecConfigurer.defaultCodecs().jackson2JsonEncoder(encoder);
         this.setMessageWriters(codecConfigurer.getWriters());
     }
 

@@ -1,0 +1,15 @@
+POST http://localhost:8085/api/v1/catalog/items HTTP/1.1
+Content-Type: application/json
+
+{
+    "name" : "TestName1",
+    "description": "TestDescription",
+    "price": 220.53,
+    "pictureFileName": "1.png",
+    "availableStock": 200,
+    "restockThreshold": 111,
+    "maxStockThreshold": 99,
+    "onReorder": false,
+    "catalogBrandId": 1,
+    "catalogTypeId": 2
+}

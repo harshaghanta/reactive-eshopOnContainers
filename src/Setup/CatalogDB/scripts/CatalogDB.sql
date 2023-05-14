@@ -11,7 +11,7 @@ GO
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Catalog]') AND type in (N'U'))
 BEGIN
 CREATE TABLE [dbo].[Catalog](
-	[Id] [int] NOT NULL,
+	[Id] [int] Identity(1,1) NOT NULL,
 	[AvailableStock] [int] NOT NULL,
 	[Description] [nvarchar](max) NULL,
 	[MaxStockThreshold] [int] NOT NULL,
@@ -85,7 +85,11 @@ PRIMARY KEY CLUSTERED
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 END
 GO
-INSERT [dbo].[Catalog] ([Id], [AvailableStock], [Description], [MaxStockThreshold], [Name], [OnReorder], [PictureFileName], [Price], [RestockThreshold], [CatalogBrandId], [CatalogTypeId]) VALUES (1, 100, N'.NET Bot Black Hoodie, and more', 0, N'.NET Bot Black Hoodie', 0, N'1.png', CAST(199.50 AS Decimal(18, 2)), 0, NULL, NULL)
+
+SET IDENTITY_INSERT dbo.Catalog ON;  
+GO  
+
+INSERT [dbo].[Catalog] ([Id], [AvailableStock], [Description], [MaxStockThreshold], [Name], [OnReorder], [PictureFileName], [Price], [RestockThreshold], [CatalogBrandId], [CatalogTypeId]) VALUES (1, 100, N'.NET Bot Black Hoodie, and more', 0, N'.NET Bot Black Hoodie', 0, N'1.png', CAST(199.50 AS Decimal(18, 2)), 0, 1, 2)
 INSERT [dbo].[Catalog] ([Id], [AvailableStock], [Description], [MaxStockThreshold], [Name], [OnReorder], [PictureFileName], [Price], [RestockThreshold], [CatalogBrandId], [CatalogTypeId]) VALUES (2, 89, N'.NET Black & White Mug', 0, N'.NET Black & White Mug', 1, N'2.png', CAST(8.50 AS Decimal(18, 2)), 0, 1, 1)
 INSERT [dbo].[Catalog] ([Id], [AvailableStock], [Description], [MaxStockThreshold], [Name], [OnReorder], [PictureFileName], [Price], [RestockThreshold], [CatalogBrandId], [CatalogTypeId]) VALUES (3, 56, N'Prism White T-Shirt', 0, N'Prism White T-Shirt', 0, N'3.png', CAST(12.00 AS Decimal(18, 2)), 0, 2, 2)
 INSERT [dbo].[Catalog] ([Id], [AvailableStock], [Description], [MaxStockThreshold], [Name], [OnReorder], [PictureFileName], [Price], [RestockThreshold], [CatalogBrandId], [CatalogTypeId]) VALUES (4, 120, N'.NET Foundation T-shirt', 0, N'.NET Foundation T-shirt', 0, N'4.png', CAST(12.00 AS Decimal(18, 2)), 0, 1, 2)
@@ -100,6 +104,10 @@ INSERT [dbo].[Catalog] ([Id], [AvailableStock], [Description], [MaxStockThreshol
 INSERT [dbo].[Catalog] ([Id], [AvailableStock], [Description], [MaxStockThreshold], [Name], [OnReorder], [PictureFileName], [Price], [RestockThreshold], [CatalogBrandId], [CatalogTypeId]) VALUES (13, 89, N'Modern .NET Black & White Mug', 0, N'Modern .NET Black & White Mug', 1, N'13.png', CAST(8.50 AS Decimal(18, 2)), 0, 1, 1)
 INSERT [dbo].[Catalog] ([Id], [AvailableStock], [Description], [MaxStockThreshold], [Name], [OnReorder], [PictureFileName], [Price], [RestockThreshold], [CatalogBrandId], [CatalogTypeId]) VALUES (14, 76, N'Modern Cup<T> White Mug', 0, N'Modern Cup<T> White Mug', 0, N'14.png', CAST(12.00 AS Decimal(18, 2)), 0, 2, 1)
 GO
+
+SET IDENTITY_INSERT dbo.Catalog OFF;  
+GO  
+
 INSERT [dbo].[CatalogBrand] ([Id], [Brand]) VALUES (1, N'.NET')
 INSERT [dbo].[CatalogBrand] ([Id], [Brand]) VALUES (2, N'Other')
 GO

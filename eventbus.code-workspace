@@ -9,10 +9,31 @@
 		{
 			"name": "catalogapi",
 			"path": "src/Services/catalogapi"
+		},
+		{
+			"name": "integration-eventlog",
+			"path": "src/BuildingBlocks/EventBus/integration-eventlog"
 		}
 	],
 	"settings": {
 		"java.configuration.updateBuildConfiguration": "automatic",
-		"java.compile.nullAnalysis.mode": "automatic"
+		"java.compile.nullAnalysis.mode": "automatic",
+		"sqltools.connections": [
+			{
+				"mssqlOptions": {
+					"appName": "SQLTools",
+					"useUTC": true,
+					"encrypt": true
+				},
+				"previewLimit": 50,
+				"server": "localhost",
+				"port": 9133,
+				"driver": "MSSQL",
+				"name": "CatDB",
+				"database": "CatalogDB",
+				"username": "sa",
+				"password": "P@ssword1"
+			}
+		]
 	}
 }

@@ -1,17 +1,25 @@
 package com.eshoponcontainers.eventbus.events;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class IntegrationEvent {
+    // @JsonProperty("id")
     private UUID id;
-    private Date creationDate;
+    // @JsonProperty("creationDate")
+    private LocalDateTime creationDate;
 
     public IntegrationEvent() {
-        this.id = UUID.randomUUID();
-        this.creationDate = new Date();
+        this(UUID.randomUUID(), LocalDateTime.now());        
+    }
+
+    public IntegrationEvent(UUID id, LocalDateTime creationTime) {
+        this.id = id;
+        this.creationDate = creationTime;
     }
 }
