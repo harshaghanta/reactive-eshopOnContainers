@@ -134,18 +134,20 @@ public class CatalogItemService {
 
     public Mono<Boolean> updateProductIfExists(CatalogItem updatedProduct) {
 
-        return catalogItemRepository.findById(updatedProduct.getId()).defaultIfEmpty(null).flatMap(savedProduct -> {
-            if (savedProduct != null)
-                return Mono.just(false);
-            else {
-                return updateProductAndRaiseEvents(savedProduct, updatedProduct).thenReturn(true);
-            }
+        return catalogItemRepository.findById(updatedProduct.getId())
+            // .switchIfEmpty(Mono.just((CatalogItem)null))
+            .flatMap(savedProduct -> {
+                if (savedProduct == null)
+                    return Mono.just(false);
+                else {
+                    return updateProductAndRaiseEvents(savedProduct, updatedProduct).thenReturn(true);
+                }
         });
     }
 
     private Mono<Void> updateProductAndRaiseEvents(CatalogItem savedProduct, CatalogItem updatedProduct) {
 
-        Boolean raisePriceChangedEvent = savedProduct.getPrice() != updatedProduct.getPrice();
+        Boolean raisePriceChangedEvent = !(savedProduct.getPrice().equals(updatedProduct.getPrice()));
 
         if (raisePriceChangedEvent) {
             PriceChangedEvent event = new PriceChangedEvent(savedProduct.getId(), savedProduct.getPrice(),
@@ -158,7 +160,8 @@ public class CatalogItemService {
 
     private Mono<Void> saveEventAndCatalogChanges(CatalogItem updatedProduct, PriceChangedEvent event) {
         UUID transactionId = UUID.randomUUID();        
-        return catalogItemRepository.save(updatedProduct).then(Mono.fromSupplier(() ->  eventLogService.saveEvent(event, transactionId)).then());
+        // return catalogItemRepository.save(updatedProduct).then(Mono.fromSupplier(() ->  eventLogService.saveEvent(event, transactionId)).then());
+        return catalogItemRepository.save(updatedProduct).flatMap(catitem -> eventLogService.saveEvent(event, transactionId).flatMap(entry-> Mono.empty()));
     }
 
     private Mono<Void> publishThroughEventBus(PriceChangedEvent event) {

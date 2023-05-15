@@ -1,4 +1,5 @@
 picBaseUrl: "http://host.docker.internal:5202/c/api/v1/catalog/items/[0]/pic/"
+catalogApiBaseUrl: "http://localhost:8085/api/v1/catalog"
 logging:
   level:
     org:

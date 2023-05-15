@@ -13,6 +13,7 @@ import com.eshoponcontainers.eventbus.events.IntegrationEvent;
 import com.eshoponcontainers.eventbus.impl.InMemoryEventBusSubscriptionManager;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.rabbitmq.client.AMQP.BasicProperties;
 
 import lombok.RequiredArgsConstructor;
@@ -41,7 +42,7 @@ public class EventBusRabbitMQ implements EventBus {
     @Override
     public Mono<Void> publish(IntegrationEvent event) {
 
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = getObjectMapper();
         String eventName = event.getClass().getSimpleName();
         BasicProperties basicProperties = new BasicProperties().builder().deliveryMode(2).build();
 
@@ -58,6 +59,15 @@ public class EventBusRabbitMQ implements EventBus {
         }
     }
 
+    private ObjectMapper getObjectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        
+        objectMapper.findAndRegisterModules();
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        return objectMapper;
+    }
+
+
     @Override
     public <T extends IntegrationEvent, TH extends IntegrationEventHandler<T>> Mono<Void> subscribe(Class<T> eventType,
             Class<TH> eventHandler) {
@@ -72,7 +82,7 @@ public class EventBusRabbitMQ implements EventBus {
                 // Class eventType = subscriptionManager.getEventTypeByName(routingKey);
                 byte[] messageBody = message.getBody();
                 try {
-                    Object event = new ObjectMapper().readValue(messageBody, eventType);
+                    Object event = getObjectMapper().readValue(messageBody, eventType);
                     log.info(event.toString());
                     List<SubscriptionInfo> subscriptions = subscriptionManager.getHandlersForEvent(eventType);
                     if (subscriptions != null && !subscriptions.isEmpty()) {
