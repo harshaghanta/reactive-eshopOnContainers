@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.eshoponcontainers.EventBus;
 import com.eshoponcontainers.catalogapi.entities.CatalogItem;
+import com.eshoponcontainers.catalogapi.entities.NullCatalogItem;
 import com.eshoponcontainers.catalogapi.events.PriceChangedEvent;
 import com.eshoponcontainers.catalogapi.repositories.CatalogItemRepository;
 import com.eshoponcontainers.catalogapi.viewmodels.DeletionStatus;
@@ -135,9 +136,10 @@ public class CatalogItemService {
     public Mono<Boolean> updateProductIfExists(CatalogItem updatedProduct) {
 
         return catalogItemRepository.findById(updatedProduct.getId())
+            .defaultIfEmpty(CatalogItem.NULL)
             // .switchIfEmpty(Mono.just((CatalogItem)null))
             .flatMap(savedProduct -> {
-                if (savedProduct == null)
+                if (savedProduct == CatalogItem.NULL)
                     return Mono.just(false);
                 else {
                     return updateProductAndRaiseEvents(savedProduct, updatedProduct).thenReturn(true);

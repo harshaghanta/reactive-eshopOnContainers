@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Table(name = "Catalog")
 public class CatalogItem {
+
+    public static final CatalogItem NULL = new NullCatalogItem();
     
     @Id
     private Integer id;
@@ -52,6 +54,4 @@ public class CatalogItem {
     public void fillProductUrl(String picBaseUrl) {
         this.pictureUri = picBaseUrl.replace("[0]", this.id.toString());
     }
-
-
 }

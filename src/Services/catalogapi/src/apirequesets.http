@@ -72,12 +72,30 @@ Content-Type: application/json
       "catalogTypeId": 1
 }
 
-### UPDATE PRODUCT PRICE
+### UPDATE PRODUCT PRICE FOR EXISTING ITEM
 PUT  http://localhost:8085/api/v1/catalog/items HTTP/1.1
 Content-Type: application/json
 
 {   
       "id" : 15,
+      "name": "TEST PRODUCT",
+      "description": "TEST PRODUCT DESCRIPTION",
+      "price": 23.5,
+      "pictureFileName": "testproduct.png",
+      "availableStock": 11,
+      "restockThreshold": 22,
+      "maxStockThreshold": 44,
+      "onReorder": false,
+      "catalogBrandId": 1,
+      "catalogTypeId": 1
+}
+
+### UPDATE PRODUCT PRICE FOR NON EXISTING ITEM
+PUT  http://localhost:8085/api/v1/catalog/items HTTP/1.1
+Content-Type: application/json
+
+{   
+      "id" : 95,
       "name": "TEST PRODUCT",
       "description": "TEST PRODUCT DESCRIPTION",
       "price": 23.5,
