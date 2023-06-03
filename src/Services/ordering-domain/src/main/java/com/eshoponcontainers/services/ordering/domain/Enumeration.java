@@ -3,10 +3,12 @@ package com.eshoponcontainers.services.ordering.domain;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.eshoponcontainers.services.ordering.domain.aggregates.orderaggregate.OrderStatus;
 
+import lombok.Data;
+
+@Data
 public abstract class Enumeration {
     
     private String name;
