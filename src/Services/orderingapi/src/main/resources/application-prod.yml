@@ -1,0 +1,20 @@
+
+server:
+  port: 8087
+rabbitmqconfig:
+  host: localhost
+  port: 15672
+spring:
+  r2dbc:
+    url: r2dbc:mssql://localhost:9133/OrderingDB
+    username: sa
+    password: P@ssword1
+
+logging:
+  level:
+    org:
+      springframework:
+        data:
+          r2dbc: DEBUG
+    io.r2dbc.r2dbc-mssql.QUERY: DEBUG
+    io.r2dbc.r2dbc-mssql.PARAM: DEBUG

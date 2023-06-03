@@ -136,3 +136,116 @@ GO
 IF  EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK8d255nh6w9gcit9xpm4kblao]') AND parent_object_id = OBJECT_ID(N'[dbo].[Catalog]'))
 ALTER TABLE [dbo].[Catalog] CHECK CONSTRAINT [FK8d255nh6w9gcit9xpm4kblao]
 GO
+
+CREATE DATABASE OrderingDb;
+GO
+
+USE OrderingDb;
+GO
+
+CREATE TABLE [buyers](
+	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
+	[IdentityGuid] [nvarchar](200) NOT NULL,
+	[Name] [nvarchar](max) NULL
+); 
+GO
+
+CREATE TABLE [cardtypes](
+	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
+	[Name] [nvarchar](200) NOT NULL
+);
+GO
+
+CREATE TABLE [orderstatus](
+	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
+	[Name] [nvarchar](200) NOT NULL
+);
+GO
+
+CREATE TABLE [paymentmethods](
+	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
+	[Alias] [nvarchar](200) NOT NULL,
+	[BuyerId] [int] FOREIGN KEY REFERENCES [buyers]([Id]) NOT NULL,
+	[CardHolderName] [nvarchar](200) NOT NULL,
+	[CardNumber] [nvarchar](25) NOT NULL,
+	[CardTypeId] [int] FOREIGN KEY REFERENCES [cardtypes]([Id]) NOT NULL,
+	[Expiration] [datetime2](7) NOT NULL
+);
+GO
+
+CREATE TABLE [requests](
+	[Id] [uniqueidentifier] PRIMARY KEY,
+	[Name] [nvarchar](max) NOT NULL,
+	[Time] [datetime2](7) NOT NULL
+);
+GO
+
+CREATE TABLE [orders](
+	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
+	[BuyerId] [int] FOREIGN KEY REFERENCES [buyers]([Id]) NULL,
+	[OrderDate] [datetime2](7) NOT NULL,
+	[OrderStatusId] [int] FOREIGN KEY REFERENCES [orderstatus]([Id]) NOT NULL,
+	[PaymentMethodId] [int] NULL,
+	[Description] [nvarchar](max) NULL,
+	[Address_City] [nvarchar](max) NULL,
+	[Address_Country] [nvarchar](max) NULL,
+	[Address_State] [nvarchar](max) NULL,
+	[Address_Street] [nvarchar](max) NULL,
+	[Address_ZipCode] [nvarchar](max) NULL
+);
+GO
+
+
+CREATE TABLE [orderItems](
+	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
+	[Discount] [decimal](18, 2) NOT NULL,
+	[OrderId] [int] REFERENCES [orders]([Id]) NULL,
+	[PictureUrl] [nvarchar](max) NULL,
+	[ProductId] [int] NOT NULL,
+	[ProductName] [nvarchar](max) NOT NULL,
+	[UnitPrice] [decimal](18, 2) NOT NULL,
+	[Units] [int] NOT NULL
+);
+GO
+
+CREATE UNIQUE NONCLUSTERED INDEX [IX_buyers_IdentityGuid] ON [buyers]
+(
+	[IdentityGuid] ASC
+)
+GO
+
+CREATE NONCLUSTERED INDEX [IX_orderItems_OrderId] ON [orderItems]
+(
+	[OrderId] ASC
+)
+GO
+
+CREATE NONCLUSTERED INDEX [IX_orders_BuyerId] ON [orders]
+(
+	[BuyerId] ASC
+)
+GO
+
+CREATE NONCLUSTERED INDEX [IX_orders_OrderStatusId] ON [orders]
+(
+	[OrderStatusId] ASC
+)
+GO
+
+CREATE NONCLUSTERED INDEX [IX_orders_PaymentMethodId] ON [orders]
+(
+	[PaymentMethodId] ASC
+)
+GO
+
+CREATE NONCLUSTERED INDEX [IX_paymentmethods_BuyerId] ON [paymentmethods]
+(
+	[BuyerId] ASC
+)
+GO
+
+CREATE NONCLUSTERED INDEX [IX_paymentmethods_CardTypeId] ON [paymentmethods]
+(
+	[CardTypeId] ASC
+)
+GO

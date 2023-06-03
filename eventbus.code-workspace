@@ -13,6 +13,14 @@
 		{
 			"name": "integration-eventlog",
 			"path": "src/BuildingBlocks/EventBus/integration-eventlog"
+		},
+		{
+			"name": "orderingapi",
+			"path": "src/Services/orderingapi"
+		},
+		{
+			"name": "ordering-domain",
+			"path": "src/Services/ordering-domain"
 		}
 	],
 	"settings": {
